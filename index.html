@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Generator trójkątów</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      padding: 20px;
+    }
+    .controls {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    label {
+      display: flex;
+      justify-content: space-between;
+    }
+    .canvas-container {
+      border: 1px solid #ccc;
+      margin-left: 20px;
+      overflow: auto; /* Dodanie przewijania w obu osiach */
+      max-width: 100%; /* Maksymalna szerokość kontenera */
+      max-height: 100vh; /* Maksymalna wysokość kontenera */
+    }
+
+    canvas, svg {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label>Szerokość obrazu: <input type="number" id="imageWidth" value="800" step="10"></label>
+    <label>Wysokość obrazu: <input type="number" id="imageHeight" value="600" step="10"></label>
+    <div id="basicOptions">
+      <label>Górny rozmiar: <input type="number" id="minSize" value="10" step="1"></label>
+      <label>Dolny rozmiar: <input type="number" id="maxSize" value="10" step="1"></label>
+    </div>
+    <div id="advancedOptions" style="display: none;">
+      <label>Górny rozmiar X: <input type="number" id="minSizeX" value="10" step="1"></label>
+      <label>Górny rozmiar Y: <input type="number" id="minSizeY" value="10" step="1"></label>
+      <label>Dolny rozmiar X: <input type="number" id="maxSizeX" value="1" step="1"></label>
+      <label>Dolny rozmiar Y: <input type="number" id="maxSizeY" value="1" step="1"></label>
+      <label>Mnożnik rozstawu X: <input type="number" id="xSpacingMultiplier" value="1" step="0.1"></label>
+      <label>Mnożnik rozstawu Y: <input type="number" id="ySpacingMultiplier" value="1" step="0.001"></label>
+    </div>
+    <label>Rozstaw X: <input type="number" id="xSpacing" value="5" step="1"></label>
+    <label>Rozstaw Y: <input type="number" id="ySpacing" value="10" step="1"></label>
+    <label>Prawdopodobieństwo zaniku:
+      <input type="range" id="vanishProb" min="0" max="1" step="0.01" value="1">
+    </label>
+    <label>Ofset zaniku:
+      <input type="range" id="vanishOffset" min="0" max="1" step="0.01" value="0">
+    </label>
+    <label>Naprzemiennie:
+      <input type="checkbox" id="interlace" checked>
+    </label>
+    <label>Kierunek:
+      <input type="checkbox" id="direction" checked>
+    </label>
+    <label>Zaawansowane:
+      <input type="checkbox" id="advancedToggle">
+    </label>
+    <label>Funkcja zmniejszania:
+      <select id="scalingFunction">
+        <option value="linear">Liniowa</option>
+        <option value="quadratic">Kwadratowa</option>
+        <option value="logarithmic">Logarytmiczna</option>
+      </select>
+    </label>
+    <label>Odwróć zanikanie:
+      <input type="checkbox" id="reverseVanish">
+    </label>
+    <label>Własny kształt (SVG):
+      <input type="file" id="customShape" accept=".svg">
+    </label>
+    <label>Przesunięcie:
+      <input type="range" id="rowOffsetSlider" min="0" max="1" step="0.1" value="1" oninput="updateRowOffsetValue()">
+      <span id="rowOffsetValue">1.0</span>
+    </label>
+    <button type="button" onclick="downloadSVG()">Pobierz SVG</button>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="canvas" style="display: none;"></canvas>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const svg = document.getElementById('svg');
+    const advancedToggle = document.getElementById('advancedToggle');
+    const basicOptions = document.getElementById('basicOptions');
+    const advancedOptions = document.getElementById('advancedOptions');
+
+    // Pokaż/ukryj zaawansowane opcje
+    advancedToggle.addEventListener('change', () => {
+      const isAdvanced = advancedToggle.checked;
+      basicOptions.style.display = isAdvanced ? 'none' : 'block';
+      advancedOptions.style.display = isAdvanced ? 'block' : 'none';
+    });
+
+    function setCanvasSize() {
+      const width = parseInt(document.getElementById('imageWidth').value, 10);
+      const height = parseInt(document.getElementById('imageHeight').value, 10);
+
+      canvas.width = width;
+      canvas.height = height;
+
+      svg.setAttribute('width', width);
+      svg.setAttribute('height', height);
+
+      generate(); // Regeneruj trójkąty po zmianie wymiarów
+    }
+
+    let customShapeContent = null;
+
+    // Obsługa załadowania pliku SVG
+    document.getElementById('customShape').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          customShapeContent = e.target.result; // Zapisz zawartość SVG
+          generate(); // Regeneruj wzór z nowym kształtem
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    function generate() {
+      const width = canvas.width;
+      const height = canvas.height;
+      const isAdvanced = advancedToggle.checked;
+      const reverseVanish = document.getElementById('reverseVanish').checked;
+
+      let minSizeX, minSizeY, maxSizeX, maxSizeY;
+      let xSpacingMultiplier = 1, ySpacingMultiplier = 1;
+
+      if (isAdvanced) {
+        minSizeX = parseFloat(document.getElementById('minSizeX').value);
+        minSizeY = parseFloat(document.getElementById('minSizeY').value);
+        maxSizeX = parseFloat(document.getElementById('maxSizeX').value);
+        maxSizeY = parseFloat(document.getElementById('maxSizeY').value);
+        xSpacingMultiplier = parseFloat(document.getElementById('xSpacingMultiplier').value);
+        ySpacingMultiplier = parseFloat(document.getElementById('ySpacingMultiplier').value);
+      } else {
+        const minSize = parseFloat(document.getElementById('minSize').value);
+        const maxSize = parseFloat(document.getElementById('maxSize').value);
+        minSizeX = minSizeY = minSize;
+        maxSizeX = maxSizeY = maxSize;
+      }
+
+      const xSpacing = parseFloat(document.getElementById('xSpacing').value);
+      const ySpacing = parseFloat(document.getElementById('ySpacing').value);
+      const vanishProb = parseFloat(document.getElementById('vanishProb').value);
+      const vanishOffset = parseFloat(document.getElementById('vanishOffset').value);
+      const interlace = document.getElementById('interlace').checked;
+      const direction = document.getElementById('direction').checked;
+      const scalingFunction = document.getElementById('scalingFunction').value;
+      const rowOffsetMultiplier = parseFloat(document.getElementById('rowOffsetSlider').value); // Pobranie wartości suwaka
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#000';
+      svg.innerHTML = ''; // Reset SVG content
+
+      const hFactor = Math.sqrt(3) / 2;
+      let currentXSpacing = xSpacing;
+      let currentYSpacing = ySpacing;
+
+      const rows = Math.ceil(height / (ySpacing * hFactor));
+      const cols = Math.ceil(width / xSpacing);
+
+      for (let row = 0; row < rows; row++) {
+        const centerCol = Math.floor(cols / 2); // Środkowa kolumna
+
+        // Obliczanie mnożnika rozstawu X w zależności od numeru rzędu
+        const rowSpacingMultiplier = 1 + (row * (xSpacingMultiplier - 1) / (rows - 1)); // Zerowy w pierwszym rzędzie, rosnący w kolejnych
+
+        for (let col = 0; col < cols; col++) {
+          const vanishRow = reverseVanish ? rows - row - 1 : row;
+          const prob = (vanishRow / rows) * vanishProb + vanishOffset;
+
+          if (Math.random() < prob) {
+            let scaleFactor;
+            switch (scalingFunction) {
+              case 'quadratic':
+                scaleFactor = Math.pow(row / rows, 2);
+                break;
+              case 'logarithmic':
+                scaleFactor = Math.log(1 + row) / Math.log(1 + rows);
+                break;
+              case 'linear':
+              default:
+                scaleFactor = row / rows;
+                break;
+            }
+
+            const sizeX = minSizeX + (maxSizeX - minSizeX) * scaleFactor;
+            const sizeY = minSizeY + (maxSizeY - minSizeY) * scaleFactor;
+
+            // Obliczanie pozycji X z uwzględnieniem przesunięcia co drugi rząd
+            const offset = (row % 2 === 0 ? 0 : xSpacing * rowOffsetMultiplier*rowSpacingMultiplier); // Przesunięcie co drugi rząd
+            const cx = centerCol * xSpacing + (col - centerCol) * xSpacing*rowSpacingMultiplier + offset;
+
+            const cy = row * currentYSpacing * hFactor;
+            if (cx > width || cy > height) continue;
+
+            let flip = col % 2 === 0;
+            if (!interlace) {
+              flip = direction;
+            }
+
+            if (customShapeContent) {
+              drawCustomShape(cx, cy, sizeX, sizeY);
+            } else {
+              drawTriangle(cx, cy, sizeX, sizeY, flip);
+              drawTriangleSVG(cx, cy, sizeX, sizeY, flip);
+            }
+          }
+        }
+        currentYSpacing = currentYSpacing + ySpacing * (1 - ySpacingMultiplier);
+      }
+    }
+    function drawCustomShape(cx, cy, sizeX, sizeY) {
+        const parser = new DOMParser();
+        const customShapeSVG = parser.parseFromString(customShapeContent, 'image/svg+xml').documentElement;
+
+        const clonedShape = customShapeSVG.cloneNode(true);
+        clonedShape.setAttribute('x', cx - sizeX / 2);
+        clonedShape.setAttribute('y', cy - sizeY / 2);
+        clonedShape.setAttribute('width', sizeX);
+        clonedShape.setAttribute('height', sizeY);
+
+        svg.appendChild(clonedShape);
+        }
+
+    function drawTriangle(cx, cy, sizeX, sizeY, pointingUp) {
+      const hX = Math.sqrt(3) / 2 * sizeX;
+      const hY = Math.sqrt(3) / 2 * sizeY;
+      ctx.beginPath();
+      if (pointingUp) {
+        ctx.moveTo(cx - sizeX / 2, cy + hY / 2);
+        ctx.lineTo(cx + sizeX / 2, cy + hY / 2);
+        ctx.lineTo(cx, cy - hY / 2);
+      } else {
+        ctx.moveTo(cx - sizeX / 2, cy - hY / 2);
+        ctx.lineTo(cx + sizeX / 2, cy - hY / 2);
+        ctx.lineTo(cx, cy + hY / 2);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawTriangleSVG(cx, cy, sizeX, sizeY, pointingUp) {
+      const hX = Math.sqrt(3) / 2 * sizeX;
+      const hY = Math.sqrt(3) / 2 * sizeY;
+      let points;
+      if (pointingUp) {
+        points = `${cx - sizeX / 2},${cy + hY / 2} ${cx + sizeX / 2},${cy + hY / 2} ${cx},${cy - hY / 2}`;
+      } else {
+        points = `${cx - sizeX / 2},${cy - hY / 2} ${cx + sizeX / 2},${cy - hY / 2} ${cx},${cy + hY / 2}`;
+      }
+      const triangle = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      triangle.setAttribute("points", points);
+      triangle.setAttribute("fill", "black");
+      svg.appendChild(triangle);
+    }
+
+    function downloadSVG() {
+      const serializer = new XMLSerializer();
+      const svgBlob = new Blob([serializer.serializeToString(svg)], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(svgBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "trojkaty.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Dodanie nasłuchiwania zdarzeń na polach wejściowych
+    document.querySelectorAll('.controls input').forEach(input => {
+      input.addEventListener('input', generate);
+    });
+
+    // Dodanie nasłuchiwania zdarzenia na polu wyboru funkcji zmniejszania
+    document.getElementById('scalingFunction').addEventListener('change', generate);
+
+    // Nasłuchiwanie zmiany wymiarów obrazu
+    document.getElementById('imageWidth').addEventListener('input', setCanvasSize);
+    document.getElementById('imageHeight').addEventListener('input', setCanvasSize);
+
+    // Inicjalizacja
+    window.onload = () => {
+      setCanvasSize();
+      updateRowOffsetValue(); // Ustaw początkową wartość wyświetlaną obok suwaka
+    };
+
+    function updateRowOffsetValue() {
+      const slider = document.getElementById('rowOffsetSlider');
+      const valueDisplay = document.getElementById('rowOffsetValue');
+      valueDisplay.textContent = parseFloat(slider.value).toFixed(1); // Wyświetlanie wartości z dokładnością do 1 miejsca po przecinku
+    }
+  </script>
+</body>
+</html>
