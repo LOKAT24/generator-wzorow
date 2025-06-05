@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Generator wzorów</title>
-  <style>
+    <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
@@ -44,47 +44,24 @@
       gap: 10px; /* Odstęp między tekstem etykiety a kontrolką */
     }
 
-    /* Stylizacja dla tekstu etykiety, aby nie rozciągał się za bardzo */
     label > span:first-of-type {
-        flex-shrink: 0; /* Zapobiega kurczeniu się tekstu etykiety */
-        margin-right: auto; /* Wypycha kontrolkę na prawo jeśli jest miejsce */
+        flex-shrink: 0; 
+        margin-right: auto;
     }
     
     input[type="number"],
-    input[type="text"], /* Dodano input tekstowy do wspólnych stylów */
+    input[type="text"], 
     select {
-      background-color: #3e3e42; /* Ciemne tło inputu */
-      color: #f0f0f5; /* Jasny tekst w inpucie */
-      border: 1px solid #4a4a50; /* Obramowanie */
-      border-radius: 6px; /* Zaokrąglenie */
+      background-color: #3e3e42;
+      color: #f0f0f5; 
+      border: 1px solid #4a4a50; 
+      border-radius: 6px; 
       padding: 8px 10px;
       box-sizing: border-box;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    input[type="number"] {
-      width: 75px; /* Ustalona szerokość dla inputów numerycznych */
-      flex-shrink: 0;
-    }
-
-    input[type="text"]#fileNameInput { /* Styl dla pola nazwy pliku */
-        flex-grow: 1; /* Pozwala polu rosnąć */
-        min-width: 100px; /* Minimalna szerokość */
-    }
-    
-    select {
-      flex-grow: 1; /* Pozwala selectowi wypełnić dostępną przestrzeń */
-      min-width: 100px;
-    }
-
-    input[type="number"]:focus,
-    input[type="text"]:focus,
-    select:focus {
-      outline: none;
-      border-color: #6f42c1; /* Kolor akcentu (fioletowy) na focus */
-      box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.25);
-    }
-
+    /* Ukrycie domyślnych strzałek w polach numerycznych */
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -92,10 +69,81 @@
     }
     input[type="number"] {
       -moz-appearance: textfield;
+      width: 100%; /* Input wypełnia wrapper */
+      padding-right: 22px; /* Zwiększone miejsce na przyciski */
     }
 
+    input[type="text"]#fileNameInput {
+        flex-grow: 1; 
+        min-width: 100px;
+    }
+    
+    select {
+      flex-grow: 1; 
+      min-width: 100px;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #6f42c1;
+      box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.25);
+    }
+    
+    /* === POPRAWIONE STYLE DLA PRZYCISKÓW KROKOWYCH === */
+    .number-input-wrapper {
+      position: relative;
+      width: 75px;
+      flex-shrink: 0;
+      /* Upewniamy się, że wrapper centruje swoje dzieci (input) */
+      display: flex;
+      align-items: center;
+    }
+
+    .stepper-btn-container {
+      position: absolute;
+      right: 1px;
+      top: -10px;
+      bottom: 0;
+      width: 20px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 0 5px 5px 0; /* Zaokrąglenie pasujące do inputa */
+      overflow: hidden; /* Ukrywa wystające rogi przycisków */
+    }
+
+    .stepper-btn {
+      flex: 1;
+      background-color: #4a4a50;
+      border: none;
+      color: #c0c0c5;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 9px; /* Lekko powiększona strzałka */
+      line-height: 1; /* Zapobiega problemom z wysokością linii */
+      transition: background-color 0.2s ease;
+    }
+    .stepper-btn:hover {
+      background-color: #5a5a60;
+    }
+    .stepper-btn:active {
+      background-color: #6f42c1; /* Lepszy feedback przy kliknięciu */
+    }
+
+    /* Usunięto styl dla .stepper-up */
+
+    .stepper-down {
+      /* Linia rozdzielająca dodana do dolnego przycisku */
+      border-top: 1px solid #3e3e42;
+    }
+    /* === KONIEC POPRAWIONYCH STYLÓW === */
+
     input[type="checkbox"] {
-      accent-color: #6f42c1; /* Kolor akcentu */
+      accent-color: #6f42c1; 
       width: 18px;
       height: 18px;
       cursor: pointer;
@@ -105,7 +153,7 @@
     input[type="file"] {
       color: #c0c0c5;
       flex-grow: 1;
-      min-width: 0; /* Pozwala na kurczenie się */
+      min-width: 0; 
     }
 
     input[type="file"]::file-selector-button {
@@ -119,7 +167,7 @@
       margin-right: 8px;
     }
     input[type="file"]::file-selector-button:hover {
-      background-color: #5a35a5; /* Ciemniejszy fiolet */
+      background-color: #5a35a5;
     }
 
     button {
@@ -213,22 +261,120 @@
 </head>
 <body>
   <div class="controls">
-    <label><span>Szerokość obrazu:</span> <input type="number" id="imageWidth" value="800" step="10"></label>
-    <label><span>Wysokość obrazu:</span> <input type="number" id="imageHeight" value="600" step="10"></label>
+    <!-- ZMIENIONA STRUKTURA PÓL NUMERYCZNYCH -->
+    <label><span>Szerokość obrazu:</span>
+      <div class="number-input-wrapper">
+        <input type="number" id="imageWidth" value="800" step="10">
+        <div class="stepper-btn-container">
+          <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+          <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+        </div>
+      </div>
+    </label>
+    <label><span>Wysokość obrazu:</span>
+      <div class="number-input-wrapper">
+        <input type="number" id="imageHeight" value="600" step="10">
+        <div class="stepper-btn-container">
+          <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+          <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+        </div>
+      </div>
+    </label>
     <div id="basicOptions">
-      <label><span>Górny rozmiar:</span> <input type="number" id="minSize" value="10" step="1"></label>
-      <label><span>Dolny rozmiar:</span> <input type="number" id="maxSize" value="10" step="1"></label>
+      <label><span>Górny rozmiar:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="minSize" value="10" step="1">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
+      <label><span>Dolny rozmiar:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="maxSize" value="10" step="1">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
     </div>
     <div id="advancedOptions" style="display: none;">
-      <label><span>Górny rozmiar X:</span> <input type="number" id="minSizeX" value="10" step="1"></label>
-      <label><span>Górny rozmiar Y:</span> <input type="number" id="minSizeY" value="10" step="1"></label>
-      <label><span>Dolny rozmiar X:</span> <input type="number" id="maxSizeX" value="1" step="1"></label>
-      <label><span>Dolny rozmiar Y:</span> <input type="number" id="maxSizeY" value="1" step="1"></label>
-      <label><span>Mnożnik rozstawu X:</span> <input type="number" id="xSpacingMultiplier" value="1" step="0.1"></label>
-      <label><span>Mnożnik rozstawu Y:</span> <input type="number" id="ySpacingMultiplier" value="1" step="0.001"></label>
+      <label><span>Górny rozmiar X:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="minSizeX" value="10" step="1">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
+      <label><span>Górny rozmiar Y:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="minSizeY" value="10" step="1">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
+      <label><span>Dolny rozmiar X:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="maxSizeX" value="1" step="1">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
+      <label><span>Dolny rozmiar Y:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="maxSizeY" value="1" step="1">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
+      <label><span>Mnożnik rozstawu X:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="xSpacingMultiplier" value="1" step="0.1">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
+      <label><span>Mnożnik rozstawu Y:</span>
+        <div class="number-input-wrapper">
+          <input type="number" id="ySpacingMultiplier" value="1" step="0.001">
+          <div class="stepper-btn-container">
+            <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+            <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+          </div>
+        </div>
+      </label>
     </div>
-    <label><span>Rozstaw X:</span> <input type="number" id="xSpacing" value="5" step="1"></label>
-    <label><span>Rozstaw Y:</span> <input type="number" id="ySpacing" value="10" step="1"></label>
+    <label><span>Rozstaw X:</span>
+      <div class="number-input-wrapper">
+        <input type="number" id="xSpacing" value="5" step="1">
+        <div class="stepper-btn-container">
+          <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+          <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+        </div>
+      </div>
+    </label>
+    <label><span>Rozstaw Y:</span>
+      <div class="number-input-wrapper">
+        <input type="number" id="ySpacing" value="10" step="1">
+        <div class="stepper-btn-container">
+          <button type="button" class="stepper-btn stepper-up" tabindex="-1">▲</button>
+          <button type="button" class="stepper-btn stepper-down" tabindex="-1">▼</button>
+        </div>
+      </div>
+    </label>
+    <!-- KONIEC ZMIENIONEJ STRUKTURY -->
     <label><span>Prawdopodobieństwo zaniku:</span>
       <input type="range" id="vanishProb" min="0" max="1" step="0.01" value="1">
     </label>
@@ -258,10 +404,9 @@
       <input type="file" id="customShape" accept=".svg">
     </label>
     <label><span>Przesunięcie:</span>
-      <input type="range" id="rowOffsetSlider" min="0" max="1" step="0.1" value="1" oninput="updateRowOffsetValue()">
+      <input type="range"id="rowOffsetSlider" min="0" max="1" step="0.1" value="1" oninput="updateRowOffsetValue()">
       <span id="rowOffsetValue">1.0</span>
     </label>
-    <!-- NOWE POLE NA NAZWĘ PLIKU -->
     <label><span>Nazwa pliku SVG:</span>
       <input type="text" id="fileNameInput" value="wzor_wygenerowany">
     </label>
@@ -356,18 +501,16 @@
       let currentXSpacing = xSpacing;
       let currentYSpacing = ySpacing;
 
-      const rows = Math.ceil(height / (ySpacing * hFactor * Math.max(0.01, ySpacingMultiplier))); // Dodano Math.max dla ySpacingMultiplier by uniknąć dzielenia przez 0
-      const cols = Math.ceil(width / (xSpacing * Math.max(0.01, xSpacingMultiplier))); // Analogicznie dla xSpacingMultiplier
+      const rows = Math.ceil(height / (ySpacing * hFactor * Math.max(0.01, ySpacingMultiplier))); 
+      const cols = Math.ceil(width / (xSpacing * Math.max(0.01, xSpacingMultiplier)));
 
       for (let row = 0; row < rows; row++) {
         const centerCol = Math.floor(cols / 2); 
         const rowSpacingMultiplierVal = rows > 1 ? (1 + (row * (xSpacingMultiplier - 1) / (rows - 1))) : 1;
 
-
         for (let col = 0; col < cols; col++) {
           const vanishRow = reverseVanish ? rows - row - 1 : row;
           const prob = (rows > 0 ? (vanishRow / rows) : 0) * vanishProb + vanishOffset;
-
 
           if (Math.random() < prob) {
             let scaleFactor;
@@ -393,7 +536,6 @@
             const cx = centerCol * effectiveXSpacing + (col - centerCol) * effectiveXSpacing + offset;
             const cy = row * currentYSpacing * hFactor;
 
-
             if (cx < -sizeX || cx > width + sizeX || cy < -sizeY || cy > height + sizeY) continue;
 
             let flip = col % 2 === 0;
@@ -408,7 +550,7 @@
             }
           }
         }
-        currentYSpacing = currentYSpacing * ySpacingMultiplier; // Użycie mnożnika
+        currentYSpacing = currentYSpacing * ySpacingMultiplier; 
       }
     }
     function drawCustomShape(cx, cy, sizeX, sizeY) {
@@ -450,22 +592,15 @@
       const fileNameInput = document.getElementById('fileNameInput');
       let fileName = fileNameInput.value.trim();
 
-      // Walidacja i domyślna nazwa
       if (fileName === "") {
-        fileName = "wzor_wygenerowany"; // Domyślna nazwa, jeśli puste
+        fileName = "wzor_wygenerowany";
       }
-
-      // Usuń niedozwolone znaki (prosty przykład, można rozbudować)
       fileName = fileName.replace(/[<>:"/\\|?*]+/g, '_');
-
-      // Upewnij się, że nazwa pliku kończy się na .svg
       if (!fileName.toLowerCase().endsWith('.svg')) {
         fileName += ".svg";
       } else {
-        // Normalizuj rozszerzenie do małych liter, jeśli już istnieje
         fileName = fileName.substring(0, fileName.length - 4) + ".svg";
       }
-
 
       const serializer = new XMLSerializer();
       let svgString = serializer.serializeToString(svgElement);
@@ -474,7 +609,7 @@
       const url = URL.createObjectURL(svgBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileName; // Użyj nazwy pliku z inputu
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -484,7 +619,7 @@
     document.querySelectorAll('.controls input, .controls select').forEach(element => {
       const eventType = (element.type === 'range' || element.type === 'number' || element.type === 'text') ? 'input' : 'change';
       element.addEventListener(eventType, () => {
-          if (element.id !== 'fileNameInput') { // Nie generuj ponownie przy zmianie nazwy pliku
+          if (element.id !== 'fileNameInput') { 
             generate();
           }
       });
@@ -502,8 +637,61 @@
       const slider = document.getElementById('rowOffsetSlider');
       const valueDisplay = document.getElementById('rowOffsetValue');
       valueDisplay.textContent = parseFloat(slider.value).toFixed(1);
-      // Nie trzeba tu wywoływać generate(), bo suwak ma już swój listener 'input'
     }
+
+    // === NOWY SKRYPT DLA OBSŁUGI PRZYCISKÓW KROKOWYCH ===
+    document.addEventListener('DOMContentLoaded', () => {
+      let intervalId;
+
+      const stopStepping = () => {
+        clearInterval(intervalId);
+        document.removeEventListener('mouseup', stopStepping);
+        document.removeEventListener('mouseleave', stopStepping);
+      };
+
+      document.querySelectorAll('.stepper-btn').forEach(button => {
+        button.addEventListener('mousedown', (e) => {
+          e.preventDefault(); // Zapobiegaj utracie fokusu z pola input
+
+          const wrapper = button.closest('.number-input-wrapper');
+          const input = wrapper.querySelector('input[type="number"]');
+          const isUp = button.classList.contains('stepper-up');
+
+          const stepValue = () => {
+            const step = parseFloat(input.step) || 1;
+            const currentValue = parseFloat(input.value) || 0;
+            let newValue = isUp ? currentValue + step : currentValue - step;
+
+            // Obsługa precyzji, aby uniknąć błędów z liczbami zmiennoprzecinkowymi
+            const stepString = step.toString();
+            const decimalPlaces = stepString.includes('.') ? stepString.split('.')[1].length : 0;
+            
+            if (input.min && newValue < parseFloat(input.min)) {
+                newValue = parseFloat(input.min);
+            }
+            if (input.max && newValue > parseFloat(input.max)) {
+                newValue = parseFloat(input.max);
+            }
+            
+            input.value = newValue.toFixed(decimalPlaces);
+
+            // Ręczne wywołanie eventu 'input', aby inne skrypty (np. generate()) zadziałały
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          };
+
+          // Pierwsze wywołanie natychmiast po kliknięciu
+          stepValue();
+
+          // Ustawienie interwału dla ciągłej zmiany przy przytrzymaniu
+          intervalId = setInterval(stepValue, 100);
+
+          // Dodanie listenerów do zatrzymania zmiany
+          document.addEventListener('mouseup', stopStepping);
+          document.addEventListener('mouseleave', stopStepping);
+        });
+      });
+    });
+    // === KONIEC NOWEGO SKRYPTU ===
   </script>
 </body>
 </html>
