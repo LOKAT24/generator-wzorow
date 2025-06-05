@@ -5,82 +5,265 @@
   <title>Generator wzorów</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       padding: 20px;
+      background-color: #1a1a1d; /* Głęboki ciemnoszary */
+      color: #f0f0f5; /* Jasny tekst */
+      margin: 0;
+      min-height: calc(100vh - 40px); /* Wypełnienie wysokości widoku */
+      box-sizing: border-box;
     }
+
     .controls {
-      width: 300px;
+      width: 320px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
+      background-color: #2c2c30; /* Ciemnoszare tło kontenera */
+      padding: 20px;
+      border-radius: 12px; /* Zaokrąglenie */
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Cień */
+      height: fit-content; /* Dopasowanie wysokości do zawartości */
+      overflow-y: auto; /* Przewijanie, jeśli zawartość się nie mieści */
+      max-height: calc(100vh - 40px); /* Ograniczenie wysokości do wysokości okna */
     }
+
+    #basicOptions, #advancedOptions {
+      display: flex;
+      flex-direction: column;
+      gap: 15px; /* Spójny odstęp */
+    }
+
     label {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      color: #c0c0c5; /* Stonowany kolor tekstu etykiet */
+      font-size: 0.9em;
+      gap: 10px; /* Odstęp między tekstem etykiety a kontrolką */
     }
+
+    /* Stylizacja dla tekstu etykiety, aby nie rozciągał się za bardzo */
+    label > span:first-of-type {
+        flex-shrink: 0; /* Zapobiega kurczeniu się tekstu etykiety */
+        margin-right: auto; /* Wypycha kontrolkę na prawo jeśli jest miejsce */
+    }
+    
+    input[type="number"],
+    input[type="text"], /* Dodano input tekstowy do wspólnych stylów */
+    select {
+      background-color: #3e3e42; /* Ciemne tło inputu */
+      color: #f0f0f5; /* Jasny tekst w inpucie */
+      border: 1px solid #4a4a50; /* Obramowanie */
+      border-radius: 6px; /* Zaokrąglenie */
+      padding: 8px 10px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="number"] {
+      width: 75px; /* Ustalona szerokość dla inputów numerycznych */
+      flex-shrink: 0;
+    }
+
+    input[type="text"]#fileNameInput { /* Styl dla pola nazwy pliku */
+        flex-grow: 1; /* Pozwala polu rosnąć */
+        min-width: 100px; /* Minimalna szerokość */
+    }
+    
+    select {
+      flex-grow: 1; /* Pozwala selectowi wypełnić dostępną przestrzeń */
+      min-width: 100px;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #6f42c1; /* Kolor akcentu (fioletowy) na focus */
+      box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.25);
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #6f42c1; /* Kolor akcentu */
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    input[type="file"] {
+      color: #c0c0c5;
+      flex-grow: 1;
+      min-width: 0; /* Pozwala na kurczenie się */
+    }
+
+    input[type="file"]::file-selector-button {
+      background-color: #6f42c1;
+      color: #f0f0f5;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-right: 8px;
+    }
+    input[type="file"]::file-selector-button:hover {
+      background-color: #5a35a5; /* Ciemniejszy fiolet */
+    }
+
+    button {
+      background-color: #6f42c1;
+      color: #f0f0f5;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #5a35a5;
+    }
+    button:active {
+      background-color: #4d2d8c;
+      transform: scale(0.98);
+    }
+
     .canvas-container {
-      border: 1px solid #ccc;
+      border: 1px solid #4a4a50;
       margin-left: 20px;
-      overflow: auto; /* Dodanie przewijania w obu osiach */
-      max-width: 100%; /* Maksymalna szerokość kontenera */
-      max-height: 100vh; /* Maksymalna wysokość kontenera */
+      overflow: auto;
+      max-width: calc(100% - 320px - 20px - 20px - 2px); 
+      max-height: calc(100vh - 40px);
+      border-radius: 12px;
+      background-color: #222225;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
     }
 
     canvas, svg {
       display: block;
+      background-color: transparent;
     }
+    
+    input[type="range"] {
+      flex-grow: 1;
+      min-width: 80px;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: #3e3e42;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #6f42c1;
+      border-radius: 50%;
+      border: 2px solid #2c2c30;
+      cursor: pointer;
+      margin-top: -5px;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 14px; 
+      height: 14px;
+      background: #6f42c1;
+      border-radius: 50%;
+      border: 2px solid #2c2c30;
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-track {
+      background: #3e3e42;
+      border-radius: 4px;
+      height: 8px;
+      cursor: pointer;
+    }
+
+    #rowOffsetValue {
+      color: #f0f0f5;
+      min-width: 30px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
   </style>
 </head>
 <body>
   <div class="controls">
-    <label>Szerokość obrazu: <input type="number" id="imageWidth" value="800" step="10"></label>
-    <label>Wysokość obrazu: <input type="number" id="imageHeight" value="600" step="10"></label>
+    <label><span>Szerokość obrazu:</span> <input type="number" id="imageWidth" value="800" step="10"></label>
+    <label><span>Wysokość obrazu:</span> <input type="number" id="imageHeight" value="600" step="10"></label>
     <div id="basicOptions">
-      <label>Górny rozmiar: <input type="number" id="minSize" value="10" step="1"></label>
-      <label>Dolny rozmiar: <input type="number" id="maxSize" value="10" step="1"></label>
+      <label><span>Górny rozmiar:</span> <input type="number" id="minSize" value="10" step="1"></label>
+      <label><span>Dolny rozmiar:</span> <input type="number" id="maxSize" value="10" step="1"></label>
     </div>
     <div id="advancedOptions" style="display: none;">
-      <label>Górny rozmiar X: <input type="number" id="minSizeX" value="10" step="1"></label>
-      <label>Górny rozmiar Y: <input type="number" id="minSizeY" value="10" step="1"></label>
-      <label>Dolny rozmiar X: <input type="number" id="maxSizeX" value="1" step="1"></label>
-      <label>Dolny rozmiar Y: <input type="number" id="maxSizeY" value="1" step="1"></label>
-      <label>Mnożnik rozstawu X: <input type="number" id="xSpacingMultiplier" value="1" step="0.1"></label>
-      <label>Mnożnik rozstawu Y: <input type="number" id="ySpacingMultiplier" value="1" step="0.001"></label>
+      <label><span>Górny rozmiar X:</span> <input type="number" id="minSizeX" value="10" step="1"></label>
+      <label><span>Górny rozmiar Y:</span> <input type="number" id="minSizeY" value="10" step="1"></label>
+      <label><span>Dolny rozmiar X:</span> <input type="number" id="maxSizeX" value="1" step="1"></label>
+      <label><span>Dolny rozmiar Y:</span> <input type="number" id="maxSizeY" value="1" step="1"></label>
+      <label><span>Mnożnik rozstawu X:</span> <input type="number" id="xSpacingMultiplier" value="1" step="0.1"></label>
+      <label><span>Mnożnik rozstawu Y:</span> <input type="number" id="ySpacingMultiplier" value="1" step="0.001"></label>
     </div>
-    <label>Rozstaw X: <input type="number" id="xSpacing" value="5" step="1"></label>
-    <label>Rozstaw Y: <input type="number" id="ySpacing" value="10" step="1"></label>
-    <label>Prawdopodobieństwo zaniku:
+    <label><span>Rozstaw X:</span> <input type="number" id="xSpacing" value="5" step="1"></label>
+    <label><span>Rozstaw Y:</span> <input type="number" id="ySpacing" value="10" step="1"></label>
+    <label><span>Prawdopodobieństwo zaniku:</span>
       <input type="range" id="vanishProb" min="0" max="1" step="0.01" value="1">
     </label>
-    <label>Ofset zaniku:
+    <label><span>Ofset zaniku:</span>
       <input type="range" id="vanishOffset" min="0" max="1" step="0.01" value="0">
     </label>
-    <label>Naprzemiennie:
+    <label><span>Naprzemiennie:</span>
       <input type="checkbox" id="interlace" checked>
     </label>
-    <label>Kierunek:
+    <label><span>Kierunek:</span>
       <input type="checkbox" id="direction" checked>
     </label>
-    <label>Zaawansowane:
+    <label><span>Zaawansowane:</span>
       <input type="checkbox" id="advancedToggle">
     </label>
-    <label>Funkcja zmniejszania:
+    <label><span>Funkcja zmniejszania:</span>
       <select id="scalingFunction">
         <option value="linear">Liniowa</option>
         <option value="quadratic">Kwadratowa</option>
         <option value="logarithmic">Logarytmiczna</option>
       </select>
     </label>
-    <label>Odwróć zanikanie:
+    <label><span>Odwróć zanikanie:</span>
       <input type="checkbox" id="reverseVanish">
     </label>
-    <label>Własny kształt (SVG):
+    <label><span>Własny kształt (SVG):</span>
       <input type="file" id="customShape" accept=".svg">
     </label>
-    <label>Przesunięcie:
+    <label><span>Przesunięcie:</span>
       <input type="range" id="rowOffsetSlider" min="0" max="1" step="0.1" value="1" oninput="updateRowOffsetValue()">
       <span id="rowOffsetValue">1.0</span>
+    </label>
+    <!-- NOWE POLE NA NAZWĘ PLIKU -->
+    <label><span>Nazwa pliku SVG:</span>
+      <input type="text" id="fileNameInput" value="wzor_wygenerowany">
     </label>
     <button type="button" onclick="downloadSVG()">Pobierz SVG</button>
   </div>
@@ -98,7 +281,6 @@
     const basicOptions = document.getElementById('basicOptions');
     const advancedOptions = document.getElementById('advancedOptions');
 
-    // Pokaż/ukryj zaawansowane opcje
     advancedToggle.addEventListener('change', () => {
       const isAdvanced = advancedToggle.checked;
       basicOptions.style.display = isAdvanced ? 'none' : 'block';
@@ -114,22 +296,23 @@
 
       svg.setAttribute('width', width);
       svg.setAttribute('height', height);
-
-      generate(); // Regeneruj trójkąty po zmianie wymiarów
+      generate();
     }
 
     let customShapeContent = null;
 
-    // Obsługa załadowania pliku SVG
     document.getElementById('customShape').addEventListener('change', (event) => {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          customShapeContent = e.target.result; // Zapisz zawartość SVG
-          generate(); // Regeneruj wzór z nowym kształtem
+          customShapeContent = e.target.result;
+          generate();
         };
         reader.readAsText(file);
+      } else {
+        customShapeContent = null;
+        generate();
       }
     });
 
@@ -163,53 +346,55 @@
       const interlace = document.getElementById('interlace').checked;
       const direction = document.getElementById('direction').checked;
       const scalingFunction = document.getElementById('scalingFunction').value;
-      const rowOffsetMultiplier = parseFloat(document.getElementById('rowOffsetSlider').value); // Pobranie wartości suwaka
+      const rowOffsetMultiplier = parseFloat(document.getElementById('rowOffsetSlider').value);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#000';
-      svg.innerHTML = ''; // Reset SVG content
+      ctx.fillStyle = '#f0f0f5';
+      svg.innerHTML = ''; 
 
       const hFactor = Math.sqrt(3) / 2;
       let currentXSpacing = xSpacing;
       let currentYSpacing = ySpacing;
 
-      const rows = Math.ceil(height / (ySpacing * hFactor));
-      const cols = Math.ceil(width / xSpacing);
+      const rows = Math.ceil(height / (ySpacing * hFactor * Math.max(0.01, ySpacingMultiplier))); // Dodano Math.max dla ySpacingMultiplier by uniknąć dzielenia przez 0
+      const cols = Math.ceil(width / (xSpacing * Math.max(0.01, xSpacingMultiplier))); // Analogicznie dla xSpacingMultiplier
 
       for (let row = 0; row < rows; row++) {
-        const centerCol = Math.floor(cols / 2); // Środkowa kolumna
+        const centerCol = Math.floor(cols / 2); 
+        const rowSpacingMultiplierVal = rows > 1 ? (1 + (row * (xSpacingMultiplier - 1) / (rows - 1))) : 1;
 
-        // Obliczanie mnożnika rozstawu X w zależności od numeru rzędu
-        const rowSpacingMultiplier = 1 + (row * (xSpacingMultiplier - 1) / (rows - 1)); // Zerowy w pierwszym rzędzie, rosnący w kolejnych
 
         for (let col = 0; col < cols; col++) {
           const vanishRow = reverseVanish ? rows - row - 1 : row;
-          const prob = (vanishRow / rows) * vanishProb + vanishOffset;
+          const prob = (rows > 0 ? (vanishRow / rows) : 0) * vanishProb + vanishOffset;
+
 
           if (Math.random() < prob) {
             let scaleFactor;
+            const progress = rows > 1 ? row / (rows -1) : (rows === 1 ? 0 : 1); 
             switch (scalingFunction) {
               case 'quadratic':
-                scaleFactor = Math.pow(row / rows, 2);
+                scaleFactor = Math.pow(progress, 2);
                 break;
               case 'logarithmic':
-                scaleFactor = Math.log(1 + row) / Math.log(1 + rows);
+                scaleFactor = rows > 1 ? (Math.log(1 + row) / Math.log(rows)) : (rows === 1 ? 0 : 1);
                 break;
               case 'linear':
               default:
-                scaleFactor = row / rows;
+                scaleFactor = progress;
                 break;
             }
-
+            
             const sizeX = minSizeX + (maxSizeX - minSizeX) * scaleFactor;
             const sizeY = minSizeY + (maxSizeY - minSizeY) * scaleFactor;
-
-            // Obliczanie pozycji X z uwzględnieniem przesunięcia co drugi rząd
-            const offset = (row % 2 === 0 ? 0 : xSpacing * rowOffsetMultiplier*rowSpacingMultiplier); // Przesunięcie co drugi rząd
-            const cx = centerCol * xSpacing + (col - centerCol) * xSpacing*rowSpacingMultiplier + offset;
-
+            
+            const effectiveXSpacing = xSpacing * rowSpacingMultiplierVal;
+            const offset = (row % 2 === 0 ? 0 : effectiveXSpacing * rowOffsetMultiplier);
+            const cx = centerCol * effectiveXSpacing + (col - centerCol) * effectiveXSpacing + offset;
             const cy = row * currentYSpacing * hFactor;
-            if (cx > width || cy > height) continue;
+
+
+            if (cx < -sizeX || cx > width + sizeX || cy < -sizeY || cy > height + sizeY) continue;
 
             let flip = col % 2 === 0;
             if (!interlace) {
@@ -219,42 +404,30 @@
             if (customShapeContent) {
               drawCustomShape(cx, cy, sizeX, sizeY);
             } else {
-              drawTriangle(cx, cy, sizeX, sizeY, flip);
               drawTriangleSVG(cx, cy, sizeX, sizeY, flip);
             }
           }
         }
-        currentYSpacing = currentYSpacing + ySpacing * (1 - ySpacingMultiplier);
+        currentYSpacing = currentYSpacing * ySpacingMultiplier; // Użycie mnożnika
       }
     }
     function drawCustomShape(cx, cy, sizeX, sizeY) {
         const parser = new DOMParser();
-        const customShapeSVG = parser.parseFromString(customShapeContent, 'image/svg+xml').documentElement;
+        const customShapeDoc = parser.parseFromString(customShapeContent, 'image/svg+xml');
+        const customShapeSVG = customShapeDoc.documentElement;
 
         const clonedShape = customShapeSVG.cloneNode(true);
         clonedShape.setAttribute('x', cx - sizeX / 2);
         clonedShape.setAttribute('y', cy - sizeY / 2);
         clonedShape.setAttribute('width', sizeX);
         clonedShape.setAttribute('height', sizeY);
-
+        
+        Array.from(clonedShape.querySelectorAll('*')).forEach(el => {
+            if (!el.getAttribute('fill') && el.tagName.toLowerCase() !== 'svg') {
+                el.setAttribute('fill', '#f0f0f5');
+            }
+        });
         svg.appendChild(clonedShape);
-        }
-
-    function drawTriangle(cx, cy, sizeX, sizeY, pointingUp) {
-      const hX = Math.sqrt(3) / 2 * sizeX;
-      const hY = Math.sqrt(3) / 2 * sizeY;
-      ctx.beginPath();
-      if (pointingUp) {
-        ctx.moveTo(cx - sizeX / 2, cy + hY / 2);
-        ctx.lineTo(cx + sizeX / 2, cy + hY / 2);
-        ctx.lineTo(cx, cy - hY / 2);
-      } else {
-        ctx.moveTo(cx - sizeX / 2, cy - hY / 2);
-        ctx.lineTo(cx + sizeX / 2, cy - hY / 2);
-        ctx.lineTo(cx, cy + hY / 2);
-      }
-      ctx.closePath();
-      ctx.fill();
     }
 
     function drawTriangleSVG(cx, cy, sizeX, sizeY, pointingUp) {
@@ -268,43 +441,68 @@
       }
       const triangle = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
       triangle.setAttribute("points", points);
-      triangle.setAttribute("fill", "black");
+      triangle.setAttribute("fill", "#f0f0f5");
       svg.appendChild(triangle);
     }
 
     function downloadSVG() {
+      const svgElement = document.getElementById('svg');
+      const fileNameInput = document.getElementById('fileNameInput');
+      let fileName = fileNameInput.value.trim();
+
+      // Walidacja i domyślna nazwa
+      if (fileName === "") {
+        fileName = "wzor_wygenerowany"; // Domyślna nazwa, jeśli puste
+      }
+
+      // Usuń niedozwolone znaki (prosty przykład, można rozbudować)
+      fileName = fileName.replace(/[<>:"/\\|?*]+/g, '_');
+
+      // Upewnij się, że nazwa pliku kończy się na .svg
+      if (!fileName.toLowerCase().endsWith('.svg')) {
+        fileName += ".svg";
+      } else {
+        // Normalizuj rozszerzenie do małych liter, jeśli już istnieje
+        fileName = fileName.substring(0, fileName.length - 4) + ".svg";
+      }
+
+
       const serializer = new XMLSerializer();
-      const svgBlob = new Blob([serializer.serializeToString(svg)], { type: "image/svg+xml" });
+      let svgString = serializer.serializeToString(svgElement);
+      
+      const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
       const url = URL.createObjectURL(svgBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "trojkaty.svg";
+      a.download = fileName; // Użyj nazwy pliku z inputu
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
-    // Dodanie nasłuchiwania zdarzeń na polach wejściowych
-    document.querySelectorAll('.controls input').forEach(input => {
-      input.addEventListener('input', generate);
+    document.querySelectorAll('.controls input, .controls select').forEach(element => {
+      const eventType = (element.type === 'range' || element.type === 'number' || element.type === 'text') ? 'input' : 'change';
+      element.addEventListener(eventType, () => {
+          if (element.id !== 'fileNameInput') { // Nie generuj ponownie przy zmianie nazwy pliku
+            generate();
+          }
+      });
     });
-
-    // Dodanie nasłuchiwania zdarzenia na polu wyboru funkcji zmniejszania
-    document.getElementById('scalingFunction').addEventListener('change', generate);
-
-    // Nasłuchiwanie zmiany wymiarów obrazu
+    
     document.getElementById('imageWidth').addEventListener('input', setCanvasSize);
     document.getElementById('imageHeight').addEventListener('input', setCanvasSize);
 
-    // Inicjalizacja
     window.onload = () => {
       setCanvasSize();
-      updateRowOffsetValue(); // Ustaw początkową wartość wyświetlaną obok suwaka
+      updateRowOffsetValue(); 
     };
 
     function updateRowOffsetValue() {
       const slider = document.getElementById('rowOffsetSlider');
       const valueDisplay = document.getElementById('rowOffsetValue');
-      valueDisplay.textContent = parseFloat(slider.value).toFixed(1); // Wyświetlanie wartości z dokładnością do 1 miejsca po przecinku
+      valueDisplay.textContent = parseFloat(slider.value).toFixed(1);
+      // Nie trzeba tu wywoływać generate(), bo suwak ma już swój listener 'input'
     }
   </script>
 </body>
