@@ -70,7 +70,7 @@
     input[type="number"] {
       -moz-appearance: textfield;
       width: 100%; /* Input wypełnia wrapper */
-      padding-right: 22px; /* Zwiększone miejsce na przyciski */
+      padding-right: 20px; /* Miejsce na przyciski */
     }
 
     input[type="text"]#fileNameInput {
@@ -96,25 +96,26 @@
       position: relative;
       width: 75px;
       flex-shrink: 0;
-      /* Upewniamy się, że wrapper centruje swoje dzieci (input) */
       display: flex;
       align-items: center;
     }
 
     .stepper-btn-container {
       position: absolute;
-      right: 1px;
-      top: 1px;
-      bottom: 1px;
-      width: 20px;
+      right: 2px;
+      top: 2px;
+      bottom: 2px;
+      width: 18px;
       display: flex;
       flex-direction: column;
-      border-radius: 0 5px 5px 0; /* Zaokrąglenie pasujące do inputa */
-      overflow: hidden; /* Ukrywa wystające rogi przycisków */
+      border-radius: 0 4px 4px 0;
+      overflow: hidden;
+      background-color: #4a4a50;
     }
 
     .stepper-btn {
-      flex: 1;
+      height: 50%;
+      min-height: 12px;
       background-color: #4a4a50;
       border: none;
       color: #c0c0c5;
@@ -123,21 +124,21 @@
       align-items: center;
       justify-content: center;
       padding: 0;
-      font-size: 9px; /* Lekko powiększona strzałka */
-      line-height: 1; /* Zapobiega problemom z wysokością linii */
+      font-size: 8px;
+      line-height: 1;
       transition: background-color 0.2s ease;
+      box-sizing: border-box;
     }
+    
     .stepper-btn:hover {
       background-color: #5a5a60;
     }
+    
     .stepper-btn:active {
-      background-color: #6f42c1; /* Lepszy feedback przy kliknięciu */
+      background-color: #6f42c1;
     }
 
-    /* Usunięto styl dla .stepper-up */
-
     .stepper-down {
-      /* Linia rozdzielająca dodana do dolnego przycisku */
       border-top: 1px solid #3e3e42;
     }
     /* === KONIEC POPRAWIONYCH STYLÓW === */
