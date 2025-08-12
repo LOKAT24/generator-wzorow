@@ -104,8 +104,8 @@
     .stepper-btn-container {
       position: absolute;
       right: 1px;
-      top: -10px;
-      bottom: 0;
+      top: 1px;
+      bottom: 1px;
       width: 20px;
       display: flex;
       flex-direction: column;
@@ -505,8 +505,12 @@
       const cols = Math.ceil(width / (xSpacing * Math.max(0.01, xSpacingMultiplier)));
 
       for (let row = 0; row < rows; row++) {
-        const centerCol = Math.floor(cols / 2); 
         const rowSpacingMultiplierVal = rows > 1 ? (1 + (row * (xSpacingMultiplier - 1) / (rows - 1))) : 1;
+        const effectiveXSpacing = xSpacing * rowSpacingMultiplierVal;
+        
+        // Calculate the actual width of this row to properly center it
+        const actualRowWidth = (cols - 1) * effectiveXSpacing;
+        const rowCenterX = width / 2;
 
         for (let col = 0; col < cols; col++) {
           const vanishRow = reverseVanish ? rows - row - 1 : row;
@@ -531,9 +535,9 @@
             const sizeX = minSizeX + (maxSizeX - minSizeX) * scaleFactor;
             const sizeY = minSizeY + (maxSizeY - minSizeY) * scaleFactor;
             
-            const effectiveXSpacing = xSpacing * rowSpacingMultiplierVal;
+            // Center the pattern properly by starting from the center and distributing points
             const offset = (row % 2 === 0 ? 0 : effectiveXSpacing * rowOffsetMultiplier);
-            const cx = centerCol * effectiveXSpacing + (col - centerCol) * effectiveXSpacing + offset;
+            const cx = rowCenterX - actualRowWidth / 2 + col * effectiveXSpacing + offset;
             const cy = row * currentYSpacing * hFactor;
 
             if (cx < -sizeX || cx > width + sizeX || cy < -sizeY || cy > height + sizeY) continue;
